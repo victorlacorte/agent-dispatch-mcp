@@ -1,0 +1,6 @@
+{"type":"thread.started","thread_id":"01a1ec39-7a33-7ca3-b37f-c52fb7f79bd1"}
+{"type":"turn.started"}
+{"type":"item.started","item":{"id":"item_0","type":"command_execution","command":"/bin/zsh -lc 'nl -ba math.ts'","aggregated_output":"","exit_code":null,"status":"in_progress"}}
+{"type":"item.completed","item":{"id":"item_0","type":"command_execution","command":"/bin/zsh -lc 'nl -ba math.ts'","aggregated_output":"     1\texport const add = (a: number, b: number) => a + b;\n","exit_code":0,"status":"completed"}}
+{"type":"item.completed","item":{"id":"item_1","type":"agent_message","text":"`math.ts` exports the `add` function ([math.ts](/fixture/repo/math.ts:1))."}}
+{"type":"turn.completed","usage":{"input_tokens":46005,"cached_input_tokens":37760,"cache_write_input_tokens":0,"output_tokens":180,"reasoning_output_tokens":0}}
