@@ -33,6 +33,16 @@ claude mcp add agent-dispatch -- "$(mise which node)" "$PWD/src/main.ts" serve
 
 TypeScript runs directly through Node's type stripping, so there is no build step.
 
+### Dispatch skill
+
+[`skills/dispatch/`](skills/dispatch/SKILL.md) teaches an orchestrator when and how to delegate through this server: briefs, the worker contract, role sandboxes, worktrees for edits, review and recovery. To install it for Claude Code, symlink it into your skills directory, then invoke it with `/dispatch`:
+
+```sh
+ln -s "$PWD/skills/dispatch" ~/.claude/skills/dispatch
+```
+
+Workers read `skills/dispatch/references/worker-contract.md` by absolute path, so keep the symlink pointing at this checkout. The skill is not needed in the worker's harness.
+
 ## Configuration
 
 Environment variables, all optional:

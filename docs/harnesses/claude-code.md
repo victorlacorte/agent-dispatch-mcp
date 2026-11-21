@@ -6,6 +6,7 @@ Claude Code is the first orchestrator. It is also a planned worker harness: phas
 
 - **MCP tool calls can block for a long time.** With default settings, a tool call that slept 330s and one that slept 660s both succeeded. The limit can be set per server or through `MCP_TOOL_TIMEOUT`. The binary's help text says it is a hard wall-clock limit and that progress notifications do not extend it. The server caps `wait` at 600s.
 - **End-to-end run (verified):** `claude -p --model haiku --mcp-config <file> --strict-mcp-config` dispatched a Codex job through the stdio server and waited for it in 4 turns, costing $0.0036 to $0.0053.
+- **Skills in headless mode (verified, 2026-11-20):** `claude -p "/dispatch <task>"` invokes a project skill from `.claude/skills/` (a symlink works) even with `disable-model-invocation: true`. With `--output-format json`, `modelUsage` gives per-model output, cache-read and cache-write tokens and `costUSD`.
 - **Registering the server:**
 
   ```sh

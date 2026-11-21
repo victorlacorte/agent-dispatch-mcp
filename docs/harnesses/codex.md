@@ -48,6 +48,18 @@ Neither signal produces a terminal event, and the `-o` file stays empty. The sup
 
 In `read-only`, the worker knew it was read-only from its context, did not attempt the write, explained why in its final message, and exited with code 0. A blocked action therefore shows up in the answer, not as an error status.
 
+Write permissions, verified with codex-cli 0.171.0 through `codex sandbox -c sandbox_mode="<mode>" -- <command>`, which applies the sandbox policy without running a model:
+
+| Write target | `read-only` | `workspace-write` |
+| --- | --- | --- |
+| Under the working directory (`-C`) | Denied | Allowed |
+| Temporary directories (`$TMPDIR`, `/tmp`) | Denied | Allowed |
+| Elsewhere, including the repository root above the working directory | Denied | Denied |
+| `.git` (`index.lock`) | Denied | Denied |
+
+- **Workers cannot commit.** `git add` fails with `Operation not permitted` on `index.lock` in a linked worktree, in the main repository root, and in a `git clone --local`. Adding the git directory to `sandbox_workspace_write.writable_roots` did not help.
+- **Reads are allowed everywhere** in both modes, so a `workspace-write` worker whose working directory is an output directory can inspect a repository and run commands in it without being able to change it.
+
 ## Configuration overrides
 
 - **`-c` keys are split on every dot, even inside quotes.** `mcp_servers."a.b".enabled=false` fails with `invalid transport in mcp_servers."a`.
@@ -62,5 +74,6 @@ A trivial read-only lookup took about 10 to 20 seconds and about 41 to 46k input
 ## Not yet verified
 
 - Whether Codex passes `AGENT_DISPATCH_DEPTH` to the MCP servers it starts.
-- Behavior of `codex exec resume`, `--output-schema`, and `workspace-write` edits in a worktree.
+- Behavior of `codex exec resume` and `--output-schema`.
+- A `codex exec` worker editing files in a worktree. The write rules above were checked with `codex sandbox`, not with a model run.
 - Multi-turn usage semantics: `codex exec` was single-turn in every run.
