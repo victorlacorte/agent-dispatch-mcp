@@ -8,3 +8,4 @@ Unresolved design questions. When one is decided, record the decision and its re
 - **Shared sandbox field:** how should `read-only` and `workspace-write` map to Claude Code permission modes?
 - **Command runner:** should the server offer a plain "run a command" tool that uses no model, as a baseline for verification tasks?
 - **`JobMeta` type:** should it become a union type with one variant per state, so the compiler enforces the per-state invariants, when the second adapter lands?
+- **Distribution:** the usual way to ship a Node MCP server is an npm package run with `npx -y <package>`. Node does not strip types under `node_modules`, so publishing would need a build step, which the project avoids today. Until then the server runs from a checkout.

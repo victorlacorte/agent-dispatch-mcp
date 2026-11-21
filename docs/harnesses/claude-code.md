@@ -1,6 +1,6 @@
 # Claude Code
 
-Claude Code is the first orchestrator. It is also a planned worker harness: phase 3 adds a Claude Code adapter, which also checks that the adapter interface isn't Codex-specific. Facts below were verified with Claude Code 2.1.326 unless marked otherwise.
+Claude Code is the first orchestrator. It is also a planned worker harness: a Claude Code worker adapter would let other orchestrators use Claude workers, and would show that the adapter interface isn't Codex-specific. Facts below were verified with Claude Code 2.1.326 unless marked otherwise.
 
 ## As orchestrator
 
@@ -10,8 +10,10 @@ Claude Code is the first orchestrator. It is also a planned worker harness: phas
 - **Registering the server:**
 
   ```sh
-  claude mcp add agent-dispatch -- "$(mise which node)" "$PWD/src/main.ts" serve
+  claude mcp add --scope user agent-dispatch -- node "$PWD/src/main.ts" serve
   ```
+
+  Verified 2026-11-21 with Claude Code 2.1.330: with user scope, `claude mcp list` reports the server as connected from any directory. The entry goes in the top-level `mcpServers` of `~/.claude.json`.
 
 ## As a future worker
 

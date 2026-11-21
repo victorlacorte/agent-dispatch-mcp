@@ -65,11 +65,12 @@ States: `queued`, `running`, then one terminal state: `completed`, `failed`, `ti
   - After the claim, only the owner writes `meta.json`, always atomically (temp file plus rename).
 - **Reconcile settles orphaned jobs.** A reader that finds a non-terminal job whose supervisor is gone first stops the orphaned worker tree, identified by pid plus start time, then marks the job `interrupted`. If liveness cannot be determined (e.g. `ps` failed), the job is left alone.
 - **Retention:** finished jobs older than 14 days are pruned when the server starts. `0` disables pruning.
-- **Permissions:** job directories are `0700` and files `0600`, because prompts and outputs can contain repository content or secrets.
+- **Permissions:** job directories are `0700` and the files the server writes are `0600`, because prompts and outputs can contain repository content or secrets.
+  - `final-message.md` is the exception: the harness creates it (Codex through `-o`) with the default umask, usually `0644`. That is accepted because the `0700` directory already keeps other users out, and the same text is in the harness's own session log, which Codex stores as `0644` in world-readable directories (verified, codex-cli 0.171.0). Tightening our copy would not reduce exposure.
 
 ## Supervisor rules
 
-These rules come from the phase 0 measurements and the phase 1 review:
+These rules come from the initial Codex and Claude Code smoke tests and the review of the first server implementation:
 
 - **Signal handlers come first,** before any await, so an early cancel is honored instead of killing the supervisor.
 - **Cancellation is cooperative, then forced.**

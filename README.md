@@ -28,10 +28,13 @@ A worker cannot dispatch further jobs. Before each run, the server asks Codex fo
 
 ```sh
 pnpm install
-claude mcp add agent-dispatch -- "$(mise which node)" "$PWD/src/main.ts" serve
+claude mcp add --scope user agent-dispatch -- node "$PWD/src/main.ts" serve
+claude mcp list   # agent-dispatch should show as connected
 ```
 
-TypeScript runs directly through Node's type stripping, so there is no build step.
+`--scope user` makes the server available in every project; the default `local` scope would limit it to this directory. One server handles any repository, because each `dispatch` names the worker's `cwd`. The server runs with the `node` on Claude Code's `PATH`, which must meet the version above. To unregister, run `claude mcp remove --scope user agent-dispatch`.
+
+TypeScript runs directly through Node's type stripping, so there is no build step. That is also why the server runs from this checkout rather than as a globally installed package: Node does not strip types from files under `node_modules`.
 
 ### Dispatch skill
 
@@ -57,7 +60,7 @@ Environment variables, all optional:
 | `AGENT_DISPATCH_CODEX_BIN` | `codex` |
 | `AGENT_DISPATCH_SERVER_NAMES` | `agent-dispatch` (server names disabled for workers, in addition to any server launched from this package) |
 
-Each job lives in `<state dir>/jobs/<YYYYMMDDTHHMMSSZ>-<label>-<hex>/` (UTC, owner-only permissions) with `meta.json`, `prompt.md`, `final-message.md`, `stderr.log` and `supervisor.log`. The full worker transcript is the harness's own session log, whose path `meta.json` records as `sessionLog`.
+Each job lives in `<state dir>/jobs/<YYYYMMDDTHHMMSSZ>-<label>-<hex>/` (UTC; the directory is owner-only) with `meta.json`, `prompt.md`, `final-message.md`, `stderr.log` and `supervisor.log`. The full worker transcript is the harness's own session log, whose path `meta.json` records as `sessionLog`.
 
 ## Development
 
