@@ -51,8 +51,8 @@ export interface CompactUsage {
 
 /**
  * What the orchestrator receives for a finished job. Kept small on purpose: every field costs
- * orchestrator tokens. Full details stay in `dir` (meta.json, events.jsonl, stderr.log,
- * last-message.md, prompt.md).
+ * orchestrator tokens. Full details stay in `dir` (meta.json, prompt.md, stderr.log,
+ * final-message.md) and in the harness session log named by meta.json.
  */
 export interface JobResult {
   job_id: string;

@@ -34,7 +34,7 @@ Claude Code is the first orchestrator. It is also a planned worker harness: phas
 
 ### Adapter notes
 
-- **Final message:** Claude reports it in the final `result` event, not in a file. The adapter must write it to `last-message.md` itself.
+- **Final message:** Claude reports it in the final `result` event, not in a file. The adapter must write it to `final-message.md` itself. Claude Code's session transcript (`~/.claude/projects/<project-slug>/<session-id>.jsonl`) is the candidate for `sessionLog`, since the server does not store worker stdout.
 - **Usage:** prefer the result event's totals and `total_cost_usd`. Mark usage `partial` for cancelled runs.
 - **Recursion guard:** `--strict-mcp-config` with an explicit config that omits this server is the equivalent of Codex's per-server disable. It also drops the user's other MCP servers, which needs a decision.
 - **Sandbox:** Claude uses permission modes and allowed tools, not Codex's sandbox names. The shared `sandbox` field needs a mapping.

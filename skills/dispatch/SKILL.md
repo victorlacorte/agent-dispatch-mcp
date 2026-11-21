@@ -107,8 +107,8 @@ End with the final message your contract specifies.
 
 A `completed` job is not an accepted result.
 
-1. Check the `wait` result: `state`, `failure_reason`, `usage.source`, and `observed`. `observed` is present only when the harness ran a different model, effort or sandbox than requested; report that deviation. If `final_message_truncated` is set, the full text is in `<dir>/last-message.md`.
-2. For implementers, copy `<dir>/last-message.md` to `attempts/<attempt_id>/report.md`.
+1. Check the `wait` result: `state`, `failure_reason`, `usage.source`, and `observed`. `observed` is present only when the harness ran a different model, effort or sandbox than requested; report that deviation. If `final_message_truncated` is set, the full text is in `<dir>/final-message.md`.
+2. For implementers, copy `<dir>/final-message.md` to `attempts/<attempt_id>/report.md`.
 3. Read the report and check it against the acceptance criteria. Spot-check what your decision depends on: open the cited lines, or rerun one cheap command when a conclusion hinges on it. Do not redo the worker's exploration.
 4. For implementers, run `git -C <worktree> status --short` and `git -C <worktree> diff --stat`. Open the full diff or files only where the report or diffstat calls for it: unexpected files, large changes, or criteria that depend on exact code. Confirm nothing outside the owned scope changed.
 5. Append one review line to the report on its own line, for example `printf '\nReview: accepted (job <job_id>)\n' >> <report>`. The other decisions are `Review: correction - <reason>` and `Review: blocked - <reason>`. The leading newline matters: copied final messages do not end with one.
@@ -138,7 +138,7 @@ Never resume or message an existing worker. Every correction goes to a fresh job
 
 ## Recovery in a new session
 
-`list` returns recent jobs, newest first, with their labels (the attempt IDs). `wait` with `timeout_s: 0` returns a finished job's result, including its `dir`, or the state of a pending one. Each job directory holds `meta.json`, `prompt.md`, `events.jsonl` (including command output), `stderr.log` and `last-message.md`; jobs are pruned after 14 days. The task directory holds the briefs, reports and review lines.
+`list` returns recent jobs, newest first, with their labels (the attempt IDs). `wait` with `timeout_s: 0` returns a finished job's result, including its `dir`, or the state of a pending one. Each job directory holds `meta.json`, `prompt.md`, `final-message.md`, `stderr.log` and `supervisor.log`; jobs are pruned after 14 days. The full worker transcript, including commands and their output, is the harness session log at `sessionLog` in `meta.json`. The task directory holds the briefs, reports and review lines.
 
 ## Final report to the user
 

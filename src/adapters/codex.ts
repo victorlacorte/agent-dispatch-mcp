@@ -239,7 +239,7 @@ export const codexAdapter: WorkerAdapter = {
     if (!parsed.sessionId) return {};
     try {
       const path = await findRollout(config.codex.home, parsed.sessionId);
-      return path ? await readRollout(path) : {};
+      return path ? { sessionLog: path, ...(await readRollout(path)) } : {};
     } catch {
       return {};
     }

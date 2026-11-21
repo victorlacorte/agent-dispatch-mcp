@@ -93,6 +93,8 @@ export interface JobMeta {
   cancelRequestedAt?: string;
   /** Harness session/thread ID, usable for a later resume. */
   sessionId?: string;
+  /** Absolute path of the harness's own session log (the full transcript), when found. */
+  sessionLog?: string;
   observed?: Observed;
   usage?: Usage;
   /** True when the worker produced a non-empty final message. */

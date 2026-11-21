@@ -31,6 +31,8 @@ export interface EventParser {
 }
 
 export interface Enrichment {
+  /** Absolute path of the harness's own session log, which holds the full transcript. */
+  sessionLog?: string;
   observed?: Observed;
   /**
    * Cumulative usage recorded by the harness's own session log, including runs that ended

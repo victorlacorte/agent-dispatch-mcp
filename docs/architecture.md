@@ -49,7 +49,7 @@ Every field costs orchestrator tokens, so a finished job returns only:
   - `unknown`: no usage could be read.
 - Usage values are never estimated.
 
-Full details stay in the job directory: `meta.json`, `prompt.md`, `events.jsonl`, `stderr.log`, `last-message.md` and `supervisor.log`.
+Full details stay in the job directory: `meta.json`, `claim`, `prompt.md`, `final-message.md`, `stderr.log` and `supervisor.log`. The worker's structured stdout is parsed while it runs and not stored: the harness keeps its own, richer session log, and `meta.json` records its path as `sessionLog` (for Codex, the rollout file). Keeping a second copy would duplicate repository content and secrets without a consumer.
 
 ## Job lifecycle and ownership
 
@@ -108,4 +108,4 @@ A worker must not be able to dispatch more workers.
 - its version, with a timeout;
 - an `enrich` step that reads harness-side session records after the run.
 
-Each adapter also owns the recursion guard for its harness and must write the final message to the job's `last-message.md`.
+Each adapter also owns the recursion guard for its harness and must write the final message to the job's `final-message.md`.

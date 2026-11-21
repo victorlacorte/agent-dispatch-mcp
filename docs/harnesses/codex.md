@@ -7,7 +7,7 @@ Verified on macOS with codex-cli 0.169.1 and 0.170.0 under ChatGPT account auth,
 ```sh
 codex exec --json -m <model> -c 'model_reasoning_effort="<effort>"' \
   [-c 'mcp_servers={"<name>"={enabled=false}}'] \
-  -s <read-only|workspace-write> -C <cwd> -o <last-message-file> -   # prompt on stdin
+  -s <read-only|workspace-write> -C <cwd> -o <final-message-file> -   # prompt on stdin
 ```
 
 - **`-m gpt-6-luna`** is accepted, and effort `medium` and `max` were both applied. Codex records the values it actually used in the session log (see below).

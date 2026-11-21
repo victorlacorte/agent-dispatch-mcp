@@ -9,9 +9,8 @@ export const FILES = {
   /** Created exclusively by whichever process takes ownership of starting or settling the job. */
   claim: "claim",
   prompt: "prompt.md",
-  events: "events.jsonl",
   stderr: "stderr.log",
-  finalMessage: "last-message.md",
+  finalMessage: "final-message.md",
   supervisorLog: "supervisor.log",
 } as const;
 

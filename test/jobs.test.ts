@@ -1,5 +1,5 @@
 import { spawn } from "node:child_process";
-import { readFile, writeFile } from "node:fs/promises";
+import { readdir, readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 import { JobService } from "../src/jobs.ts";
@@ -93,7 +93,26 @@ describe("dispatch and wait", () => {
       hasFinalMessage: true,
       sessionId: expect.stringMatching(/^01a1ec3a-/),
     });
+    expect(stored.sessionLog).toBe(
+      join(
+        h.codexHome,
+        "sessions",
+        "2026",
+        "11",
+        "17",
+        `rollout-2026-11-17T00-00-00-${stored.sessionId}.jsonl`,
+      ),
+    );
     expect(stored.failureReason).toBeUndefined();
+    // The worker's stdout is parsed live, not stored: the harness session log is the transcript.
+    expect((await readdir(done[0]!.dir)).toSorted()).toEqual([
+      "claim",
+      "final-message.md",
+      "meta.json",
+      "prompt.md",
+      "stderr.log",
+      "supervisor.log",
+    ]);
 
     const record = await readRecord(h.recordPath);
     expect(record.depth).toBe("1");

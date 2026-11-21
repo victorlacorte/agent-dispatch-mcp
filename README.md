@@ -57,7 +57,7 @@ Environment variables, all optional:
 | `AGENT_DISPATCH_CODEX_BIN` | `codex` |
 | `AGENT_DISPATCH_SERVER_NAMES` | `agent-dispatch` (server names disabled for workers, in addition to any server launched from this package) |
 
-Each job lives in `<state dir>/jobs/<YYYYMMDDTHHMMSSZ>-<label>-<hex>/` (UTC, owner-only permissions) with `meta.json`, `prompt.md`, `events.jsonl`, `stderr.log`, and `last-message.md`.
+Each job lives in `<state dir>/jobs/<YYYYMMDDTHHMMSSZ>-<label>-<hex>/` (UTC, owner-only permissions) with `meta.json`, `prompt.md`, `final-message.md`, `stderr.log` and `supervisor.log`. The full worker transcript is the harness's own session log, whose path `meta.json` records as `sessionLog`.
 
 ## Development
 

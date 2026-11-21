@@ -245,7 +245,6 @@ export async function runJob(dir: string, config: Config): Promise<void> {
 
   const parser = adapter.createParser();
   const streamErrors: string[] = [];
-  const events = createWriteStream(join(dir, FILES.events), { mode: 0o600 });
   const stderr = createWriteStream(join(dir, FILES.stderr), { mode: 0o600 });
 
   let harnessVersion: Promise<string | undefined> = Promise.resolve(undefined);
@@ -253,10 +252,7 @@ export async function runJob(dir: string, config: Config): Promise<void> {
   let exit: Exit = { code: null, signal: null };
   let stdioLeaked = false;
   try {
-    for (const stream of [events, stderr]) {
-      stream.on("error", (error) => streamErrors.push(message(error)));
-    }
-    child.stdout.pipe(events);
+    stderr.on("error", (error) => streamErrors.push(message(error)));
     child.stderr.pipe(stderr);
     child.stdin.on("error", () => {
       // The worker may exit before reading stdin; the exit path reports the outcome.
@@ -294,7 +290,7 @@ export async function runJob(dir: string, config: Config): Promise<void> {
     internalError ??= message(error);
   }
   clearTimeout(timer);
-  await Promise.all([endStream(events), endStream(stderr)]);
+  await endStream(stderr);
 
   const parsed = parser.result();
   const enrichment = await adapter.enrich(parsed, config);
@@ -345,6 +341,7 @@ export async function runJob(dir: string, config: Config): Promise<void> {
   };
   if (failureReason) patch.failureReason = failureReason;
   if (parsed.sessionId) patch.sessionId = parsed.sessionId;
+  if (enrichment.sessionLog) patch.sessionLog = enrichment.sessionLog;
   if (enrichment.observed) patch.observed = enrichment.observed;
   const version = await harnessVersion;
   if (version) patch.harnessVersion = version;

@@ -147,6 +147,16 @@ describe("enrich", () => {
       config,
     );
     expect(enrichment.observed?.model).toBe("gpt-6-luna");
+    expect(enrichment.sessionLog).toBe(
+      join(
+        config.codex.home,
+        "sessions",
+        "2026",
+        "11",
+        "17",
+        `rollout-2026-11-17T00-00-00-${sessionId}.jsonl`,
+      ),
+    );
   });
 
   it.each(["../x", "*", "01a1ec39-7a33-7ca3-b37f-c52fb7f79bd2", ""])(
