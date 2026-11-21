@@ -45,6 +45,7 @@ The research was done between 2026-10-31 and 2026-11-17. Star counts and activit
 | Crystal | `claude --output-format stream-json`, `codex exec --json`, resume by a stored session ID | Refuses to resume without a stored ID rather than silently starting fresh. |
 | claude-squad, ccmanager, ntm | tmux or PTY screen-scraping | Fragile: ccmanager detects that Claude is idle with a spinner regex and a 1.5s wait. Avoid. |
 | Roo Code boomerang | `new_task` / `attempt_completion(result)` | The only tool that returns just a summary to the parent. |
+| poteto/noodle (about 700 stars, MIT, Go) | Autonomous loop: an LLM scheduler (itself a skill) reads a backlog plus prose `schedule:` fields on skills and writes multi-stage orders with a provider, model and runtime per stage. Each stage runs `claude -p --output-format stream-json` or `codex exec --json` in its own worktree, and merges into main are serialized. | A layer above ours: it owns task selection, routing, worktrees and merging, where we leave those to the orchestrator. Worth borrowing: prose triggers instead of wiring skills together, and a serialized merge queue. Avoid: both adapters bypass permissions by default (`bypassPermissions`, `--dangerously-bypass-approvals-and-sandbox`). Checked in source at commit `82d2921` (2026-03-19) on 2026-11-21. |
 
 ## What we adopted
 
