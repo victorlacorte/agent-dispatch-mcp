@@ -1,6 +1,6 @@
 # AGENTS.md
 
-agent-dispatch is a local MCP server that lets an orchestrating agent delegate bounded tasks to worker agents in another harness (currently Codex CLI). The goal is fewer frontier-model tokens at equal delivery quality. Start with [docs/README.md](docs/README.md); design decisions and their reasons are in [docs/architecture.md](docs/architecture.md), and the current phase and open questions are in [docs/roadmap.md](docs/roadmap.md).
+agent-dispatch is a local MCP server that lets an orchestrating agent delegate bounded tasks to worker agents in another harness (currently Codex CLI). The goal is fewer frontier-model tokens at equal delivery quality. Start with [docs/README.md](docs/README.md); design decisions and their reasons are in [docs/architecture.md](docs/architecture.md), and unresolved questions are in [docs/open-questions.md](docs/open-questions.md).
 
 ## Commands
 
@@ -17,7 +17,7 @@ TypeScript runs directly through Node's type stripping. There is no build step, 
 
 ## Where things go
 
-- **`docs/`** holds durable knowledge: design, verified harness behavior, research conclusions, roadmap. Update it when a decision is made or a fact is verified. It must not link into `.scratch/`.
+- **`docs/`** holds durable knowledge: design, verified harness behavior, research conclusions, open questions, planned work. Update it when a decision is made or a fact is verified. It must not link into `.scratch/`.
 - **`.scratch/`** holds throwaway material: plans for a single piece of work, handoffs, research reports, review reports, experiments, proofs of concept, test evidence. It is excluded from git and never committed. Use one directory per piece of work, named `<YYYYMMDD>-<kebab-case-subject>/`, and reuse it when continuing that work.
 - **`test/fixtures/`** holds sanitized recordings only: no local paths, user instructions or secrets.
 

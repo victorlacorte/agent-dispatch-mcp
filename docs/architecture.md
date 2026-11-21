@@ -2,7 +2,7 @@
 
 ## Scope
 
-The server is a **cross-harness spawn tool**. It starts a worker with a given prompt, model, effort, sandbox and working directory, tracks it, and returns a compact result. Each harness keeps its own model and tool loop. The server does not decompose tasks, route models, create worktrees or judge results. Those belong to the orchestrator and to a dispatch skill (see the [roadmap](roadmap.md)).
+The server is a **cross-harness spawn tool**. It starts a worker with a given prompt, model, effort, sandbox and working directory, tracks it, and returns a compact result. Each harness keeps its own model and tool loop. The server does not decompose tasks, route models, create worktrees or judge results. Those belong to the orchestrator, guided by the [dispatch skill](#dispatch-skill).
 
 ```
 orchestrator (e.g. Claude Code)
@@ -109,3 +109,17 @@ A worker must not be able to dispatch more workers.
 - an `enrich` step that reads harness-side session records after the run.
 
 Each adapter also owns the recursion guard for its harness and must write the final message to the job's `final-message.md`.
+
+## Dispatch skill
+
+[`skills/dispatch/`](../skills/dispatch/SKILL.md) teaches the orchestrator when to delegate, how to brief workers, and how to review and integrate their results. It is kept separate from the user's single-harness orchestrate skill so each can evolve on its own; shared parts can be extracted later.
+
+- **Role sandboxes** follow from Codex's write rules ([harnesses/codex.md](harnesses/codex.md#sandbox)). Explorers and researchers run `workspace-write` with their attempt directory as `cwd`, so they can write a report but cannot change the repository. Implementers run `workspace-write` in a dedicated worktree and report in their final message.
+- **Worktrees** are created by the orchestrator, not by the server: the brief must name the worktree's path, branch and base commit before dispatch.
+- **Edit integration:** Codex workers cannot commit, because `.git` is read-only in their sandbox. The implementer leaves its changes uncommitted; the orchestrator reviews the diffstat and report (the full diff only when needed), commits on the worktree branch, and integrates.
+- **Records:** a task directory with briefs, reports and one review line per report. There is no journal, because each job's `meta.json` already holds the attempt telemetry.
+- **Compatibility:** benchmark every relevant harness, model and effort level, instead of fixing one worker pair up front.
+
+## Stack
+
+TypeScript run directly by Node (type stripping, no build step), pnpm, Vitest, TypeScript 7 for typechecking, oxlint and oxfmt. Node and pnpm are pinned in `mise.toml` and the `packageManager` field.

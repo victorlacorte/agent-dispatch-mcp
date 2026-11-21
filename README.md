@@ -4,7 +4,7 @@ A local MCP server that lets an orchestrating agent (e.g. Claude Code) dispatch 
 
 Each worker runs under a small detached supervisor, so jobs survive the orchestrator session that started them.
 
-Design, verified harness behavior, research and roadmap are in [docs/](docs/README.md).
+Design, verified harness behavior, research and open questions are in [docs/](docs/README.md).
 
 ## Tools
 
