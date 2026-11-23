@@ -17,8 +17,7 @@ For setup and configuration, see the [project README](../README.md).
 ## Planned work
 
 1. A Claude Code worker adapter, which proves the adapter interface is not Codex-specific and lets other orchestrators use Claude workers.
-2. Unifying the dispatch skill with the user's orchestrate skill: two entry skills (`/orchestrate` for native subagents, `/dispatch` for cross-harness workers) over one shared core, in a dedicated skills repository.
-3. Paired benchmark runs per [benchmarking.md](benchmarking.md), then evaluating resume (`codex exec resume`), `--output-schema`, Codex `app-server`, MCP Tasks and ACP (see [research/protocols.md](research/protocols.md)).
+2. Paired benchmark runs per [benchmarking.md](benchmarking.md), then evaluating resume (`codex exec resume`), `--output-schema`, Codex `app-server`, MCP Tasks and ACP (see [research/protocols.md](research/protocols.md)).
 
 Plans and progress for each piece of work live in `.scratch/`, not here.
 

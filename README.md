@@ -38,13 +38,13 @@ TypeScript runs directly through Node's type stripping, so there is no build ste
 
 ### Dispatch skill
 
-[`skills/dispatch/`](skills/dispatch/SKILL.md) teaches an orchestrator when and how to delegate through this server: briefs, the worker contract, role sandboxes, worktrees for edits, review and recovery. To install it for Claude Code, symlink it into your skills directory, then invoke it with `/dispatch`:
+The `dispatch` skill, which teaches an orchestrator when and how to delegate through this server, lives in the [skills repository](https://github.com/victorlacorte/skills) beside `orchestrate`, its native-subagent counterpart, over a shared core. Install it with that repository's `pnpm skills:install`, then invoke it with `/dispatch`. Workers read the core's worker contract by absolute path, so the skill is not needed in the worker's harness.
 
-```sh
-ln -s "$PWD/skills/dispatch" ~/.claude/skills/dispatch
+In Claude Code's auto mode, the permission classifier denied a `dispatch` call for a `workspace-write` worker (observed 2026-11-22, Claude Code 2.1.330). Allow the tool in `~/.claude/settings.json`:
+
+```json
+{ "permissions": { "allow": ["mcp__agent-dispatch__dispatch"] } }
 ```
-
-Workers read `skills/dispatch/references/worker-contract.md` by absolute path, so keep the symlink pointing at this checkout. The skill is not needed in the worker's harness.
 
 ## Configuration
 

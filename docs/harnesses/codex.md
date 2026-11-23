@@ -67,7 +67,7 @@ Model runs, verified 2026-11-22 with codex-cli 0.171.0, `gpt-6-luna`, `workspace
 - **A worker edits files in its worktree** and runs checks there; `git add` fails with `Operation not permitted` on the worktree's `index.lock`.
 - **No network from the shell by default:** `curl`, `git ls-remote` and `gh` failed to resolve hosts (`gh` also reported its token invalid). The built-in web tool (`web__run`) fetched a public page, so researchers can read URLs.
 - **`-c sandbox_workspace_write.network_access=true` enables it** (exposed as the `network` dispatch argument) for any host, with no allowlist: `curl` reached `api.github.com` and `gh` authenticated through the keyring (`codex sandbox`), and an explorer listed, watched and summarized a public repository's CI run with `gh` in a model run.
-- **`writable_dirs` works in a model run:** an explorer with a worktree as `cwd` and its attempt directory in `writable_dirs` ran all of the checks above and wrote its report and logs into the attempt directory.
+- **`writable_dirs` works in a model run:** an explorer with a worktree as `cwd` and its attempt directory in `writable_dirs` ran all of the checks above and wrote its report and logs into the attempt directory. Through the MCP server (dispatch skill trial), an implementer with its worktree as `cwd` edited code, ran `pnpm test` and wrote its report to its attempt directory, and a check explorer did the same in the verification worktree without changing it; each job took about 45 seconds and 120k to 150k input tokens, about 90% cached.
 - **Dependencies:** a new worktree needs its own install before dispatch; `pnpm install --offline --frozen-lockfile` from the local store worked.
 
 ## Configuration overrides

@@ -4,7 +4,7 @@ Nothing has been benchmarked yet. This page records the objective and the measur
 
 The only data so far is the 2026-11-20 dispatch skill trial (Claude Code with Opus 5.5 orchestrating Codex `gpt-6-luna`, not a paired benchmark): on a 4-file repository, a forced delegation of a lookup cost the orchestrator more output tokens than answering directly (3032 vs 1080), and an unforced run correctly declined to delegate.
 
-Current approach (user decision, 2026-11-21): no staged benchmark yet. The user delegates real tasks with acceptance criteria written up front, one orchestrator session per task, and the results are reviewed in a retrospective within the 14-day job retention. Evidence: task directories (briefs, reports, review lines), job `meta.json`, and the orchestrator's session transcript. Paired runs follow only if the numbers are borderline.
+Current approach (user decision, 2026-11-21): no staged benchmark yet. The user delegates real tasks with acceptance criteria written up front, one orchestrator session per task, and the results are reviewed in a retrospective within the 14-day job retention. Evidence: task directories (`task.md`, briefs, attempt reports), job `meta.json`, and the orchestrator's session transcript. Paired runs follow only if the numbers are borderline.
 
 ## Objective
 
