@@ -258,6 +258,23 @@ describe("launch", () => {
     });
   });
 
+  it("allows writes in writable_dirs through writable_roots", async () => {
+    const sandbox = await makeSandbox("launch-writable");
+    const config = loadConfig(fakeEnv(sandbox));
+    const dirs = [join(sandbox.cwd, "out"), "/tmp/sp ace/uni-\u00e9/dot.dir/back\\slash"];
+    const launch = await codexAdapter.launch(
+      { ...request(sandbox.cwd), sandbox: "workspace-write", writableDirs: dirs },
+      "p",
+      { finalMessage: "/out.md" },
+      config,
+    );
+    const index = launch.args.indexOf(
+      `sandbox_workspace_write.writable_roots=${JSON.stringify(dirs)}`,
+    );
+    expect(index).toBeGreaterThan(0);
+    expect(launch.args[index - 1]).toBe("-c");
+  });
+
   it("omits the override when no dispatch server is configured", async () => {
     const sandbox = await makeSandbox("launch-none");
     const config = loadConfig(fakeEnv(sandbox));

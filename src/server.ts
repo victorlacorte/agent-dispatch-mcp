@@ -8,6 +8,7 @@ type ToolResult = { content: { type: "text"; text: string }[]; isError?: boolean
 /** Harness identifiers: no leading dash, so they cannot be read as command-line flags. */
 const IDENTIFIER = /^[A-Za-z0-9][A-Za-z0-9._:-]*$/;
 const MAX_WAIT_JOBS = 50;
+const MAX_WRITABLE_DIRS = 8;
 
 /** Compact JSON keeps the orchestrator's token cost down. */
 function ok(value: unknown): ToolResult {
@@ -47,8 +48,18 @@ export function createServer(jobs: JobService, version: string): McpServer {
           effort: z.string().regex(IDENTIFIER).describe("e.g. low, medium, high, max"),
           sandbox: z
             .enum(SANDBOXES)
-            .describe("workspace-write only inside a worktree dedicated to this job"),
+            .describe("workspace-write: writes only under cwd, writable_dirs and temp dirs"),
           cwd: z.string().min(1).describe("Absolute path"),
+          writable_dirs: z
+            .array(z.string().min(1))
+            .min(1)
+            .max(MAX_WRITABLE_DIRS)
+            .optional()
+            .describe("Extra absolute dirs to allow writes in (workspace-write only)"),
+          network: z
+            .boolean()
+            .optional()
+            .describe("Allow shell network to any host (workspace-write only)"),
           prompt: z.string().min(1),
           label: z.string().min(1).max(80).describe("Short kebab-case task label"),
           timeout_s: z.number().int().positive().max(86_400).default(1800),
@@ -63,6 +74,8 @@ export function createServer(jobs: JobService, version: string): McpServer {
               effort: args.effort,
               sandbox: args.sandbox,
               cwd: args.cwd,
+              ...(args.writable_dirs ? { writableDirs: args.writable_dirs } : {}),
+              ...(args.network ? { network: true } : {}),
               label: args.label,
               timeoutSeconds: args.timeout_s,
             },

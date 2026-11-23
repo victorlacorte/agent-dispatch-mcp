@@ -59,9 +59,20 @@ Write permissions, verified with codex-cli 0.171.0 through `codex sandbox -c san
 
 - **Workers cannot commit.** `git add` fails with `Operation not permitted` on `index.lock` in a linked worktree, in the main repository root, and in a `git clone --local`. Adding the git directory to `sandbox_workspace_write.writable_roots` did not help.
 - **Reads are allowed everywhere** in both modes, so a `workspace-write` worker whose working directory is an output directory can inspect a repository and run commands in it without being able to change it.
+- **Extra writable directories work** through `-c sandbox_workspace_write.writable_roots=["<dir>"]`: with it, a write to `<dir>` outside the working directory succeeded; without it, it was denied (`codex sandbox`, 0.171.0). The server exposes it as the `writable_dirs` dispatch argument. The `-c` list replaces `writable_roots` from the user's config instead of merging with it, and a path containing a double quote breaks the sandbox profile, so every command of the job fails (the same holds for `cwd`); the server rejects such paths. Spaces, non-ASCII characters, dots and backslashes work (all verified, 0.171.0).
+
+Model runs, verified 2026-11-22 with codex-cli 0.171.0, `gpt-6-luna`, `workspace-write`, on a small TypeScript repository:
+
+- **Checks that write inside the repository fail when the working directory is elsewhere.** With the working directory outside the repository: `tsc --noEmit`, `eslint --cache` (the cache write failed silently), `node --test`, `git status` and `git diff` succeeded; an incremental `tsc` (`.tsbuildinfo`), `node --test` with coverage output (`coverage/`) and `tsc` emitting `dist/` failed with `EPERM`. With the working directory in a linked worktree, all of them succeeded.
+- **A worker edits files in its worktree** and runs checks there; `git add` fails with `Operation not permitted` on the worktree's `index.lock`.
+- **No network from the shell by default:** `curl`, `git ls-remote` and `gh` failed to resolve hosts (`gh` also reported its token invalid). The built-in web tool (`web__run`) fetched a public page, so researchers can read URLs.
+- **`-c sandbox_workspace_write.network_access=true` enables it** (exposed as the `network` dispatch argument) for any host, with no allowlist: `curl` reached `api.github.com` and `gh` authenticated through the keyring (`codex sandbox`), and an explorer listed, watched and summarized a public repository's CI run with `gh` in a model run.
+- **`writable_dirs` works in a model run:** an explorer with a worktree as `cwd` and its attempt directory in `writable_dirs` ran all of the checks above and wrote its report and logs into the attempt directory.
+- **Dependencies:** a new worktree needs its own install before dispatch; `pnpm install --offline --frozen-lockfile` from the local store worked.
 
 ## Configuration overrides
 
+- **An array value replaces the whole key,** and a value that is not valid TOML is taken as a raw string, so a malformed list fails with a type error instead of being ignored (0.171.0).
 - **`-c` keys are split on every dot, even inside quotes.** `mcp_servers."a.b".enabled=false` fails with `invalid transport in mcp_servers."a`.
 - **Inline tables work and merge** into the existing config: `-c 'mcp_servers={"a.b"={enabled=false}}'` disables `a.b` and keeps its other settings.
 - **Disabling a server that isn't configured breaks the config.** `-c mcp_servers.x.enabled=false` for an unconfigured `x` fails with `invalid transport`, so only configured servers can be disabled.
@@ -75,5 +86,4 @@ A trivial read-only lookup took about 10 to 20 seconds and about 41 to 46k input
 
 - Whether Codex passes `AGENT_DISPATCH_DEPTH` to the MCP servers it starts.
 - Behavior of `codex exec resume` and `--output-schema`.
-- A `codex exec` worker editing files in a worktree. The write rules above were checked with `codex sandbox`, not with a model run.
 - Multi-turn usage semantics: `codex exec` was single-turn in every run.

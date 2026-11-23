@@ -10,7 +10,7 @@ Design, verified harness behavior, research and open questions are in [docs/](do
 
 | Tool | Purpose |
 | --- | --- |
-| `dispatch` | Start a worker (`harness`, `model`, `effort`, `sandbox`, `cwd`, `prompt`, `label`, `timeout_s`). Returns a `job_id` immediately. |
+| `dispatch` | Start a worker (`harness`, `model`, `effort`, `sandbox`, `cwd`, optional `writable_dirs` and `network`, `prompt`, `label`, `timeout_s`). Returns a `job_id` immediately. |
 | `wait` | Block until `any` or `all` of the given jobs finish, or `timeout_s` passes (capped at 600s). Returns results of finished jobs and the state of pending ones. |
 | `cancel` | Stop a job and its whole process tree; returns once termination is confirmed. |
 | `list` | Recent jobs, newest first, to recover `job_id`s in a new session. |

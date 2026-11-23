@@ -1,4 +1,5 @@
 import { spawn } from "node:child_process";
+import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { createInterface } from "node:readline";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
@@ -91,12 +92,40 @@ describe("MCP server", () => {
     ).toMatchObject({ state: "completed", detail: "job had already finished" });
   });
 
+  it("passes writable_dirs and network through to the stored request", async () => {
+    const { client, cwd } = await connect();
+    const args = dispatchArgs(cwd, {
+      sandbox: "workspace-write",
+      writable_dirs: [cwd],
+      network: true,
+    });
+    const { job_id } = json(await client.callTool({ name: "dispatch", arguments: args })) as {
+      job_id: string;
+    };
+    const waited = json(
+      await client.callTool({ name: "wait", arguments: { job_ids: [job_id], timeout_s: 30 } }),
+    ) as { done: { dir: string }[] };
+    const meta = JSON.parse(await readFile(join(waited.done[0]!.dir, "meta.json"), "utf8")) as {
+      request: { writableDirs?: string[]; network?: boolean };
+    };
+    expect(meta.request).toMatchObject({ writableDirs: [cwd], network: true });
+  });
+
   it("returns tool errors for invalid requests", async () => {
     const { client, cwd } = await connect();
     const cases: [string, Record<string, unknown>, RegExp][] = [
       ["dispatch", dispatchArgs("relative/path"), /absolute/],
       ["dispatch", dispatchArgs(cwd, { model: "--danger" }), /model/],
       ["dispatch", dispatchArgs(cwd, { sandbox: "danger-full-access" }), /sandbox/],
+      ["dispatch", dispatchArgs(cwd, { writable_dirs: [] }), /writable_dirs/],
+      ["dispatch", dispatchArgs(cwd, { writable_dirs: Array(9).fill(cwd) }), /writable_dirs/],
+      ["dispatch", dispatchArgs(cwd, { writable_dirs: [cwd] }), /requires sandbox workspace-write/],
+      ["dispatch", dispatchArgs(cwd, { network: "yes" }), /network/],
+      [
+        "dispatch",
+        dispatchArgs(cwd, { network: true }),
+        /network requires sandbox workspace-write/,
+      ],
       ["wait", { job_ids: [] }, /job_ids/],
       ["wait", { job_ids: ["x"], timeout_s: 100_000 }, /timeout_s/],
       ["wait", { job_ids: ["20260101T000000Z-x-abcd"] }, /unknown job/],

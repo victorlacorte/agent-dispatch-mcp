@@ -1,5 +1,5 @@
 import { spawn } from "node:child_process";
-import { readdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, readdir, readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 import { JobService } from "../src/jobs.ts";
@@ -118,6 +118,23 @@ describe("dispatch and wait", () => {
     expect(record.depth).toBe("1");
     expect(record.codexHome).toBe(h.codexHome);
     expect(record.cwd.endsWith("/repo")).toBe(true);
+    expect(record.args.some((arg) => arg.startsWith("sandbox_workspace_write"))).toBe(false);
+  });
+
+  it("passes writable_dirs and network to the harness and stores them in the request", async () => {
+    const h = await setup();
+    const meta = await h.service.dispatch(
+      request(h.cwd, { sandbox: "workspace-write", writableDirs: [h.root], network: true }),
+      "p",
+    );
+    await h.service.wait([meta.jobId], 30, "all");
+    const record = await readRecord(h.recordPath);
+    expect(record.args).toContain(
+      `sandbox_workspace_write.writable_roots=${JSON.stringify([h.root])}`,
+    );
+    expect(record.args).toContain("sandbox_workspace_write.network_access=true");
+    expect(meta.request.writableDirs).toEqual([h.root]);
+    expect(meta.request.network).toBe(true);
   });
 
   it("reports observed settings only when they differ from the request", async () => {
@@ -219,6 +236,28 @@ describe("validation", () => {
       /not a directory/,
     );
     await expect(h.service.dispatch(request(h.cwd), "  ")).rejects.toThrow(/empty/);
+  });
+
+  it("rejects writable_dirs and network outside workspace-write, and invalid directories", async () => {
+    const h = await setup();
+    const extra = (
+      writableDirs: string[],
+      sandbox: DispatchRequest["sandbox"] = "workspace-write",
+    ) => h.service.dispatch(request(h.cwd, { sandbox, writableDirs }), "p");
+    await expect(extra([h.root], "read-only")).rejects.toThrow(/requires sandbox workspace-write/);
+    await expect(extra([])).rejects.toThrow(/must not be empty/);
+    await expect(extra(["out"])).rejects.toThrow(/writable_dirs entry must be absolute/);
+    const quoted = join(h.root, 'a"b');
+    await mkdir(quoted);
+    await expect(extra([quoted])).rejects.toThrow(/double quote/);
+    await expect(h.service.dispatch(request(quoted), "p")).rejects.toThrow(
+      /cwd contains a double quote/,
+    );
+    await expect(extra([join(h.root, "nope")])).rejects.toThrow(/does not exist/);
+    await expect(
+      h.service.dispatch(request(h.cwd, { sandbox: "read-only", network: true }), "p"),
+    ).rejects.toThrow(/network requires sandbox workspace-write/);
+    expect(await h.service.list(undefined, 10)).toEqual([]);
   });
 
   it("rejects unknown, malformed and corrupt job ids", async () => {

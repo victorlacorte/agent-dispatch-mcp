@@ -137,10 +137,17 @@ export class JobService {
         `refusing to dispatch from inside a dispatched worker (${DEPTH_ENV} is set)`,
       );
     }
-    if (!isAbsolute(request.cwd)) throw new DispatchError(`cwd must be absolute: ${request.cwd}`);
-    const cwdStat = await stat(request.cwd).catch(() => undefined);
-    if (!cwdStat?.isDirectory()) {
-      throw new DispatchError(`cwd does not exist or is not a directory: ${request.cwd}`);
+    await requireDirectory("cwd", request.cwd);
+    if (request.writableDirs !== undefined) {
+      if (request.writableDirs.length === 0)
+        throw new DispatchError("writable_dirs must not be empty");
+      if (request.sandbox !== "workspace-write") {
+        throw new DispatchError("writable_dirs requires sandbox workspace-write");
+      }
+      for (const dir of request.writableDirs) await requireDirectory("writable_dirs entry", dir);
+    }
+    if (request.network && request.sandbox !== "workspace-write") {
+      throw new DispatchError("network requires sandbox workspace-write");
     }
     if (prompt.trim() === "") throw new DispatchError("prompt must not be empty");
 
@@ -417,5 +424,22 @@ export class JobService {
       }
     }
     return pruneJobs(this.config.jobsDir, this.config.retentionDays);
+  }
+}
+
+// Codex 0.171.0 builds its macOS sandbox profile from these paths without escaping them, so a
+// double quote breaks every command of the job (verified); control characters are refused too.
+function unsafePath(path: string): boolean {
+  return [...path].some((char) => char === '"' || char.charCodeAt(0) < 0x20 || char === "\u007f");
+}
+
+async function requireDirectory(name: string, path: string): Promise<void> {
+  if (!isAbsolute(path)) throw new DispatchError(`${name} must be absolute: ${path}`);
+  if (unsafePath(path)) {
+    throw new DispatchError(`${name} contains a double quote or control character: ${path}`);
+  }
+  const info = await stat(path).catch(() => undefined);
+  if (!info?.isDirectory()) {
+    throw new DispatchError(`${name} does not exist or is not a directory: ${path}`);
   }
 }

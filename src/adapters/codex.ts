@@ -220,6 +220,10 @@ export const codexAdapter: WorkerAdapter = {
         "-c",
         `model_reasoning_effort=${JSON.stringify(request.effort)}`,
         ...(override ? ["-c", override] : []),
+        ...(request.writableDirs?.length
+          ? ["-c", `sandbox_workspace_write.writable_roots=${JSON.stringify(request.writableDirs)}`]
+          : []),
+        ...(request.network ? ["-c", "sandbox_workspace_write.network_access=true"] : []),
         "-s",
         request.sandbox,
         "-C",

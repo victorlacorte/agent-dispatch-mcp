@@ -30,6 +30,10 @@ export interface DispatchRequest {
   sandbox: Sandbox;
   /** Absolute, existing directory the worker runs in. */
   cwd: string;
+  /** Absolute, existing directories the worker may also write; `workspace-write` only. */
+  writableDirs?: string[];
+  /** Allow network access from the worker's shell; `workspace-write` only. */
+  network?: boolean;
   timeoutSeconds: number;
   label: string;
 }
